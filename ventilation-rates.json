@@ -1,0 +1,61 @@
+{
+  "standard": "ASHRAE Standard 62.1, Ventilation Rate Procedure, Table 6.2.2.1 (Table 6-1)",
+  "formula": "Vbz = Rp x Pz + Ra x Az; Voz = Vbz / Ez",
+  "rates_cfm": {
+    "office": {
+      "label": "Office space",
+      "rp": 5,
+      "ra": 0.06,
+      "density_per_1000ft2": 5
+    },
+    "conference": {
+      "label": "Conference / meeting room",
+      "rp": 5,
+      "ra": 0.06,
+      "density_per_1000ft2": 50
+    },
+    "classroom": {
+      "label": "Classroom (age 9 plus)",
+      "rp": 10,
+      "ra": 0.12,
+      "density_per_1000ft2": 35
+    },
+    "lecture": {
+      "label": "Lecture hall (fixed seats)",
+      "rp": 7.5,
+      "ra": 0.06,
+      "density_per_1000ft2": 150
+    },
+    "restaurant_dining": {
+      "label": "Restaurant dining room",
+      "rp": 7.5,
+      "ra": 0.18,
+      "density_per_1000ft2": 70
+    },
+    "cafeteria": {
+      "label": "Cafeteria / fast-food dining",
+      "rp": 7.5,
+      "ra": 0.18,
+      "density_per_1000ft2": 100
+    },
+    "retail": {
+      "label": "Retail sales",
+      "rp": 7.5,
+      "ra": 0.12,
+      "density_per_1000ft2": 15
+    },
+    "gym": {
+      "label": "Gym / sports arena (play area)",
+      "rp": 20,
+      "ra": 0.18,
+      "density_per_1000ft2": 30
+    }
+  },
+  "exhaust_rates_table_6_2": {
+    "public_toilets_cfm_per_wc_or_urinal_continuous": 50,
+    "public_toilets_cfm_per_wc_or_urinal_intermittent": 70,
+    "commercial_kitchen_exhaust_cfm_per_ft2": 0.7,
+    "parking_garage_exhaust_cfm_per_ft2": 0.75
+  },
+  "note": "Ontario designs are reviewed against the ventilation requirements referenced by the OBC (Part 6 / ASHRAE 62.1). Ez is the air distribution effectiveness: 1.0 for ceiling supply of cool air; see the standard for other configurations."
+}
