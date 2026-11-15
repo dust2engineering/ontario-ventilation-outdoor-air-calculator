@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontario Ventilation Outdoor Air Calculator | Dust 2 Engineering Inc.</title>
+<style>
+:root{color-scheme:dark}
+body{background:#0e1116;color:#e6e9ee;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:24px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto}
+h1{font-size:1.55rem;line-height:1.25;margin:.2em 0 .1em}
+h2{font-size:1.15rem;margin-top:1.6em;color:#ffd479}
+.sub{color:#9fb0c3;margin:.2em 0 1.2em}
+.card{background:#161b22;border:1px solid #2b333f;border-radius:12px;padding:18px;margin:14px 0}
+label{display:block;margin:.7em 0 .25em;color:#c8d3e0;font-size:.95rem}
+input,select{width:100%;box-sizing:border-box;background:#0e1116;color:#e6e9ee;border:1px solid #39424f;border-radius:8px;padding:9px;font-size:1rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+button{background:#f0a832;color:#14100a;border:0;border-radius:8px;padding:11px 18px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:14px}
+button.ghost{background:#232a35;color:#e6e9ee}
+pre{background:#0a0d11;border:1px solid #2b333f;border-radius:10px;padding:14px;white-space:pre-wrap;word-break:break-word;font-size:.92rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{border:1px solid #2b333f;padding:6px 8px;text-align:left}
+th{background:#1b212b}
+.small{color:#9fb0c3;font-size:.88rem}
+a{color:#7cc4ff}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Ontario Ventilation Outdoor Air Calculator</h1>
+<p class="sub">Outdoor air by the ASHRAE 62.1 Ventilation Rate Procedure — the method Ontario Part 6 designs are checked against.</p>
+<div class="card">
+<label>Space type (ASHRAE 62.1 Table 6.2.2.1)</label>
+<select id="space"><option value="office">Office space</option><option value="conference">Conference / meeting room</option><option value="classroom">Classroom (age 9 plus)</option><option value="lecture">Lecture hall (fixed seats)</option><option value="restaurant_dining">Restaurant dining room</option><option value="cafeteria">Cafeteria / fast-food dining</option><option value="retail">Retail sales</option><option value="gym">Gym / sports arena (play area)</option></select>
+<div class="row"><div><label>Floor area (ft&sup2;)</label><input id="area" type="number" value="2000" min="0"></div>
+<div><label>Design occupants (0 = default density)</label><input id="ppl" type="number" value="0" min="0"></div></div>
+<label>Air distribution effectiveness Ez (1.0 = ceiling supply, cool air)</label>
+<input id="ez" type="number" value="1.0" step="0.05" min="0.1">
+<button onclick="go()">Calculate outdoor air</button>
+</div>
+<h2>Result</h2>
+<pre id="out">Your ventilation result will appear here.</pre>
+<p class="small">ASHRAE 62.1 sizes outdoor air in two parts: a people rate (Rp) for the contaminants
+occupants produce, and an area rate (Ra) for what the building itself gives off. Vbz = Rp x Pz + Ra x Az,
+and the zone outdoor airflow is Voz = Vbz / Ez. Exhaust minimums from Table 6.2 are a separate check:
+public toilets 50 CFM per water closet or urinal (continuous), commercial kitchens 0.70 CFM/ft&sup2;,
+parking garages 0.75 CFM/ft&sup2;.</p>
+<p class="small">Free tool by <b>Dust 2 Engineering Inc.</b>, Mississauga, Ontario — building permit
+drawings for restaurants and small commercial projects across the GTA, stamped by an Ontario P.Eng.
+Flat rate $3,500–$5,000. Questions or a project to discuss: open an issue in this repository.</p>
+</div>
+<script>
+
+const RATES = {"office": {"label": "Office space", "rp": 5, "ra": 0.06, "density_per_1000ft2": 5}, "conference": {"label": "Conference / meeting room", "rp": 5, "ra": 0.06, "density_per_1000ft2": 50}, "classroom": {"label": "Classroom (age 9 plus)", "rp": 10, "ra": 0.12, "density_per_1000ft2": 35}, "lecture": {"label": "Lecture hall (fixed seats)", "rp": 7.5, "ra": 0.06, "density_per_1000ft2": 150}, "restaurant_dining": {"label": "Restaurant dining room", "rp": 7.5, "ra": 0.18, "density_per_1000ft2": 70}, "cafeteria": {"label": "Cafeteria / fast-food dining", "rp": 7.5, "ra": 0.18, "density_per_1000ft2": 100}, "retail": {"label": "Retail sales", "rp": 7.5, "ra": 0.12, "density_per_1000ft2": 15}, "gym": {"label": "Gym / sports arena (play area)", "rp": 20, "ra": 0.18, "density_per_1000ft2": 30}};
+function go(){
+  const k = document.getElementById('space').value;
+  const r = RATES[k];
+  const area = parseFloat(document.getElementById('area').value) || 0;
+  let pz = parseFloat(document.getElementById('ppl').value) || 0;
+  const ez = parseFloat(document.getElementById('ez').value) || 1;
+  const usedDefault = pz <= 0;
+  if (usedDefault) pz = r.density_per_1000ft2 * area / 1000;
+  const vbz = r.rp * pz + r.ra * area;
+  let out = r.label + ': Rp ' + r.rp + ' CFM/person, Ra ' + r.ra + ' CFM/ft2\n';
+  out += 'Zone population Pz = ' + pz.toFixed(1) + (usedDefault ? ' (default density ' + r.density_per_1000ft2 + ' per 1,000 ft2)' : '') + ', area Az = ' + area + ' ft2\n';
+  out += 'Breathing-zone outdoor air Vbz = Rp x Pz + Ra x Az = ' + Math.round(vbz) + ' CFM\n';
+  out += 'Zone outdoor airflow Voz = Vbz / Ez = ' + Math.round(vbz / ez) + ' CFM\n';
+  out += 'Zone-level result. Multi-zone systems also need the system ventilation efficiency step (62.1 Section 6.2.5).';
+  document.getElementById('out').textContent = out;
+}
+
+</script>
+</body>
+</html>
